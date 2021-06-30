@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/head'); %>
+</head>
+
+<body class="container">
+
+    <header>
+        <%- include('../partials/header'); %>
+    </header>
+
+    <main>
+        <div class="jumbotron">
+            <h1>Balance</h1>
+            <div class="balance"></div>
+        </div>
+    </main>
+
+    <script>
+        $(document).ready(function() {
+            $.ajax({
+                url: "/api/balance",
+                contentType: "application/json",
+                dataType: 'json',
+                success: function(result) {
+                    $(".balance").append(`<p>$${result.value}</p>`)      
+                }
+            })
+        })
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/head'); %>
+</head>
+
+<body class="container">
+
+    <header>
+        <%- include('../partials/header'); %>
+    </header>
+
+    <main>
+        <h1>Application</h1>
+        <a type="button" class="btn btn-dark" href="/application/create">
+            Add New Application
+        </a>
+        <div class="list">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">ID</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="table-body">
+                </tbody>
+            </table>
+        </div>
+
+    </main>
+
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                url: "/api/application",
+                contentType: "application/json",
+                dataType: 'json',
+                success: function (result) {
+                    result["_embedded"].applications.forEach((v, i) => {
+                        console.log(v);
+                        $(".table-body").append(`<tr>
+                            <td>${v.name}</td>
+                            <td>${v.id}</td>
+                            <td>
+                                <a href="/application/${v.id}/edit" type="button" class="btn btn-light edit-${i}">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <button type="button" class="btn btn-danger delete-${i}">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                          </tr>`);
+                        $(document).on("click", `button.delete-${i}`, function () {
+                            if (confirm("Are you sure?")) {
+                                $.ajax({
+                                    type: "DELETE",
+                                    url: `/api/application/${v.id}`,
+                                    success: function (result) {
+                                        window.location.href = "/application"
+                                    }
+                                })
+                            }
+                        })
+                    })
+                }
+            })
+
+        })
+    </script>
+
+</body>
+
+</html>

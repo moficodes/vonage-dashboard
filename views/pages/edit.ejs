@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/head'); %>
+</head>
+
+<body class="container">
+
+    <header>
+        <%- include('../partials/header'); %>
+    </header>
+
+    <main>
+        <div>ID <%= id %>
+        </div>
+        <div class="data"></div>
+    </main>
+
+    <script>
+        let id = '<%= id %>'
+        $(document).ready(function () {
+            $.ajax({
+                url: `/api/application/${id}`,
+                contentType: "application/json",
+                dataType: 'json',
+                success: function (result) {
+                    $(".data").append(`<div id="form">
+                        <div class="mb-3">
+                          <label for="name" class="form-label">Name</label>
+                          <input type="text" class="form-control" id="name" value="${result.name}">
+                        </div>
+                        <div class="mb-3">
+                          <label for="publickey" class="form-label">Public Key</label>
+                          <textarea class="form-control" id="publickey">${result.keys.public_key}</textarea>
+                        </div>
+                        <div>Messages</div>
+                        <div class="mb-3">
+                            <label for="inbound_url" class="form-label">Inbound URL</label>
+                            <input type="text" class="form-control" id="inbound_url" value="${result.capabilities.messages ? result.capabilities.messages.webhooks.inbound_url.address: ""}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="status_url" class="form-label">Status URL</label>
+                            <input type="text" class="form-control" id="status_url" value="${result.capabilities.messages ? result.capabilities.messages.webhooks.status_url.address: ""}">
+                        </div>
+                        <button type="button" id="submit" class="btn btn-primary">Submit</button>
+                      </div>`)
+                }
+            })
+
+            $(document).on("click", `button#submit`, function () {
+                console.log('sumbit attempted');
+                var formData = {
+                    name: $("#name").val(),
+                    public_key: $("#publickey").val(),
+                    capabilities: {
+                        messages: {
+                            webhooks: {
+                                inbound_url: {
+                                    address: $("#inbound_url").val(),
+                                    http_method: "POST",
+                                },
+                                status_url: {
+                                    address: $("#status_url").val(),
+                                    http_method: "POST",
+                                }
+                            }
+                        }
+                    }
+                };
+
+                console.log(JSON.stringify(formData));
+
+                $.ajax({
+                    type: "POST",
+                    url: `/api/application/${id}/edit`,
+                    data: JSON.stringify(formData, function replacer(key, value) {return value}),
+                    contentType: "application/json",
+                    dataType: "json",
+                    encode: true,
+                    success: function (result) {
+                        window.location.href = "/application"
+                    }
+                })
+            })
+        })
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/head'); %>
+</head>
+
+<body class="container">
+
+    <header>
+        <%- include('../partials/header'); %>
+    </header>
+
+    <main>
+        <h1>SMS</h1>
+        <p>Application</p>
+        <select class="form-select applications" aria-label="Select Application">
+            <option selected>Select Application</option>
+        </select>
+        <p>From</p>
+        <select class="form-select from-numbers" aria-label="Select From Number">
+            <option selected>From</option>
+        </select>
+        <div class="mb-3">
+            <label for="to" class="form-label">To</label>
+            <input type="text" class="form-control" id="to" placeholder="1800xxxxxxx">
+        </div>
+        <div class="mb-3">
+            <label for="message" class="form-label">Message</label>
+            <input type="text" class="form-control" id="message" placeholder="Hello from Vonage">
+        </div>
+        <button type="button" id="submit" class="btn btn-primary">Send</button>
+
+    </main>
+
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                url: "/api/application",
+                contentType: "application/json",
+                dataType: 'json',
+                success: function (result) {
+                    result["_embedded"].applications.forEach((v, i) => {
+                        $(".applications").append(`<option value="${v.id}">${v.name}</option>`)
+                    })
+                }
+            })
+
+            $(document).on("change", "select.applications", function (e) {
+                const application_id = e.target.value;
+                $.ajax({
+                    url: `/api/number/${application_id}`,
+                    contentType: "application/json",
+                    dataType: 'json',
+                    success: function (result) {
+                        if (!result.numbers) {
+                            alert("no number found. please attach number");
+                            return;
+                        }
+                        result.numbers.forEach((v, i) => {
+                            $(".from-numbers").append(`<option value="${v.msisdn}">${v.msisdn}</option>`)
+                        })
+                    }
+                })
+            })
+
+            $(document).on("click", `button#submit`, function () {
+                console.log('sumbit attempted');
+
+                const from = $(".from-numbers").val();
+                if (from === "From") {
+                    alert("need to select a number");
+                    return;
+                }
+
+                const application_id = $(".applications").val();
+
+                const to = $("#to").val();
+                const message = $("#message").val();
+                if (to === "" || message === "") {
+                    alert("can't have that empty");
+                }
+                var formData = {
+                    to: to,
+                    from: from,
+                    application_id: application_id,
+                    message: message,
+                };
+
+                console.log(formData);
+                $.ajax({
+                    type: "POST",
+                    url: `/api/sms`,
+                    data: JSON.stringify(formData),
+                    contentType: "application/json",
+                    dataType: "json",
+                    encode: true,
+                    success: function (result) {
+                        alert("message uuid "+ result.message_uuid);
+                    }
+                })
+            })
+        })
+    </script>
+
+</body>
+
+</html>
