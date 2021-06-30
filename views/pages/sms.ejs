@@ -65,8 +65,6 @@
             })
 
             $(document).on("click", `button#submit`, function () {
-                console.log('sumbit attempted');
-
                 const from = $(".from-numbers").val();
                 if (from === "From") {
                     alert("need to select a number");
@@ -87,7 +85,6 @@
                     message: message,
                 };
 
-                console.log(formData);
                 $.ajax({
                     type: "POST",
                     url: `/api/sms`,

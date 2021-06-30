@@ -1,2 +1,3 @@
 .env
 private.key
+request_logs.txt

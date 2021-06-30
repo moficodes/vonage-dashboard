@@ -49,10 +49,11 @@
             })
 
             $(document).on("click", `button#submit`, function () {
-                console.log('sumbit attempted');
                 var formData = {
                     name: $("#name").val(),
-                    public_key: $("#publickey").val(),
+                    keys: {
+                        public_key: $("#publickey").val(),
+                    },
                     capabilities: {
                         messages: {
                             webhooks: {
@@ -68,8 +69,6 @@
                         }
                     }
                 };
-
-                console.log(JSON.stringify(formData));
 
                 $.ajax({
                     type: "POST",
